@@ -70,6 +70,7 @@ public:
 	void moveRight(float);
 	void moveUp(float);
 	void moveDown(float);
+	void setActive(bool);
 	bool isActive();
 	// For subclass to consider setting them
 	void setWindowSize(int, int, int, int);

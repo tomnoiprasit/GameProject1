@@ -25,87 +25,6 @@ BaseApp::~BaseApp()
 }
 
 
-void BaseApp::runMessageLoop()
-{
-	MSG msg;
-
-	while (TRUE) {
-		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		// Background sound
-		// 
-		//if (gameSound.BackgroundChanged())
-		//	gameSound.playLoop(0, 0.5f);
-
-		// Handle your timer related here
-		gameTime.update();
-		if (gameTime.getElapsedTime() > SCREEN_UPDATE) {
-
-			// Update your timer related objects
-			for (auto npc : npcs) {
-				npc->update(gameTime);
-			}
-
-			for (auto npc : npc2s) {
-				npc->update(gameTime);
-			}
-
-			// collision detection
-			// NPC1 hits itself
-			for (size_t i = 0; i < npcs.size(); i++)
-			{
-				for (size_t j = i + 1; j < npcs.size(); j++)
-				{
-					if (TUtils::intersects(
-						npcs.at(i)->getDrawRectangle(), 
-						npcs.at(j)->getDrawRectangle()
-						)) {
-
-						npcs.at(i)->toggleStatus();
-						npcs.at(j)->toggleStatus();
-					}
-				}
-			}
-			// NPC2 hits each other
-			for (size_t i = 0; i < npc2s.size(); i++)
-			{
-				for (size_t j = i + 1; j < npc2s.size(); j++)
-				{
-					if (TUtils::intersects(
-						npc2s.at(i)->getDrawRectangle(),
-						npc2s.at(j)->getDrawRectangle()
-						)) {
-						// If i is on the left, move i to the left
-						// and j to the right
-						if (npc2s.at(i)->getDrawRectangle().left <
-							npc2s.at(j)->getDrawRectangle().left) {
-							npc2s.at(i)->setStatus(1);
-							npc2s.at(j)->setStatus(2);
-						}
-						else {
-							npc2s.at(i)->setStatus(2);
-							npc2s.at(j)->setStatus(1);
-						}
-					}
-				}
-			}
-
-			// Rest elapsed time to 0 and repaint screen
-			gameTime.resetElapsedTime();
-			InvalidateRect(mainWindowHandle, NULL, TRUE);
-		}
-		else {
-			//
-		}
-		if (msg.message == WM_QUIT) break;
-	}
-
-}
-
 HRESULT BaseApp::createDeviceIndependentResources()
 {
 	HRESULT hr = S_OK;
@@ -125,49 +44,6 @@ HRESULT BaseApp::createDeviceIndependentResources()
 		);
 
 	return hr;
-}
-
-void BaseApp::loadConfig() {
-	// Need to load content from config before this methods.
-	// This section will be handled by your future Config object.
-	//
-
-	// Background - spriteSheetFile.at(0)
-	spriteSheetFiles.push_back("..//media//DubboITBackground.jpg");
-	// Background - sprites.at(0)
-	sprites.push_back({ 
-		D2D1::RectF(0.f, 0.f, 799.f, 599.f)
-	});
-
-	// NPC 1 - spriteSheetFile.at(1)
-	spriteSheetFiles.push_back("..//media//Regular_NPCs.png");
-	// NPC 1 - sprites.at(1)
-	sprites.push_back({
-		D2D1::RectF(0.f, 0.f, 35.f, 60.f)
-	});
-	// NPC 2 - sprites.at(2)
-	sprites.push_back({
-		D2D1::RectF(251.f, 8.f, 282.f, 56.f)
-	});
-
-	// Fonts 
-	fonts.push_back("Bookman Old Style");
-	// Font sizes
-	fontSizes.push_back(24.f);
-	fontSizes.push_back(12.f);
-	// Now that we are generating fonts and font sizes automatically,
-	// the access to textFormats vector will be calculated by
-	// (font * fontSize + fontSize)
-	// i.e. textFormat.at(font * fontSize + fontSize)
-	// Therefore, you should document the actual access index, here
-	//
-	// textFormat.at(0) : Bookman Old Style, 24.f
-	// textFormat.at(1) : Bookman Old Style, 12.f
-
-	brushColor.push_back(D2D1::ColorF(D2D1::ColorF::White));
-	brushColor.push_back(D2D1::ColorF(D2D1::ColorF::DarkBlue));
-	brushColor.push_back(D2D1::ColorF(D2D1::ColorF::Yellow));
-	brushColor.push_back(D2D1::ColorF(D2D1::ColorF::Red));
 }
 
 HRESULT BaseApp::createDeviceResources(HWND hWnd)
@@ -207,7 +83,7 @@ HRESULT BaseApp::createDeviceResources(HWND hWnd)
 		for (auto fontSize : fontSizes) {
 			textFormats.push_back(NULL);
 			hr = d2dDWriteFactory->CreateTextFormat(
-				toWSString(font).c_str(),
+				TUtils::toWSString(font).c_str(),
 				NULL,
 				DWRITE_FONT_WEIGHT_REGULAR,
 				DWRITE_FONT_STYLE_NORMAL,
@@ -237,7 +113,7 @@ HRESULT BaseApp::createDeviceResources(HWND hWnd)
 	for (auto spriteSheetFile : spriteSheetFiles) {
 
 		hr = wicImaingFactory->CreateDecoderFromFilename(
-			toWSString(spriteSheetFile).c_str(),
+			TUtils::toWSString(spriteSheetFile).c_str(),
 			NULL,
 			GENERIC_READ,
 			WICDecodeMetadataCacheOnLoad,
@@ -443,6 +319,125 @@ LRESULT CALLBACK BaseApp::wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 	return result;
 }
 
+void BaseApp::runMessageLoop()
+{
+	MSG msg;
+
+	while (TRUE) {
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		// Background sound
+		// 
+		//if (gameSound.BackgroundChanged())
+		//	gameSound.playLoop(0, 0.5f);
+
+		// Handle your timer related here
+		gameTime.update();
+		if (gameTime.getElapsedTime() > SCREEN_UPDATE) {
+
+			// Update your timer related objects
+			for (auto npc : npcs) {
+				npc->update(gameTime);
+			}
+
+			for (auto npc : npc2s) {
+				npc->update(gameTime);
+			}
+
+			// collision detection
+			// NPC1 hits other NPC1
+			for (size_t i = 0; i < npcs.size(); i++)
+			{
+				for (size_t j = i + 1; j < npcs.size(); j++)
+				{
+					if (TUtils::intersects(
+						npcs.at(i)->getDrawRectangle(),
+						npcs.at(j)->getDrawRectangle()
+						)) {
+
+						npcs.at(i)->toggleStatus();
+						npcs.at(j)->toggleStatus();
+					}
+				}
+			}
+			// NPC2 hits other NPC2
+			for (size_t i = 0; i < npc2s.size(); i++)
+			{
+				for (size_t j = i + 1; j < npc2s.size(); j++)
+				{
+					if (TUtils::intersects(
+						npc2s.at(i)->getDrawRectangle(),
+						npc2s.at(j)->getDrawRectangle()
+						)) {
+						// If i is on the left, move i to the left
+						// and j to the right
+						if (npc2s.at(i)->getDrawRectangle().left <
+							npc2s.at(j)->getDrawRectangle().left) {
+							npc2s.at(i)->setStatus(1);
+							npc2s.at(j)->setStatus(2);
+						}
+						else {
+							npc2s.at(i)->setStatus(2);
+							npc2s.at(j)->setStatus(1);
+						}
+					}
+				}
+			}
+
+			// Collision between NPC1 and NPC2
+			for (size_t i = 0; i < npcs.size(); i++) {
+				for (size_t j = 0; j < npc2s.size(); j++) {
+					if (npcs.at(i)->isActive() &&
+						npc2s.at(j)->isActive() &&
+						TUtils::intersects(npcs.at(i)->getDrawRectangle(), npc2s.at(j)->getDrawRectangle())) {
+
+						// Mark both of them inactive
+						npcs.at(i)->setActive(false);
+						npc2s.at(j)->setActive(false);
+					}
+				}
+			}
+
+			// Remove inactive objects
+			// Be careful here!!!
+			// You must dereference the object first,
+			// then remove the pointer from the vector.
+			// If not..... memory leaks......
+			// Don't blame me.
+			for (auto it = npcs.begin(); it != npcs.end();) {
+				if (!(*it)->isActive()) {
+					delete * it;
+					it = npcs.erase(it);
+				}
+				else {
+					++it;
+				}
+			}
+			for (auto it = npc2s.begin(); it != npc2s.end();) {
+				if (!(*it)->isActive()) {
+					delete * it;
+					it = npc2s.erase(it);
+				}
+				else {
+					++it;
+				}
+			}
+
+			// Rest elapsed time to 0 and repaint screen
+			gameTime.resetElapsedTime();
+			InvalidateRect(mainWindowHandle, NULL, TRUE);
+		}
+		else {
+			//
+		}
+		if (msg.message == WM_QUIT) break;
+	}
+}
+
 HRESULT BaseApp::onRender()
 {
 	HRESULT hr = S_OK;
@@ -456,11 +451,13 @@ HRESULT BaseApp::onRender()
 	//background.draw(renderingTarget);
 
 	for (auto npc : npcs) {
-		npc->draw(renderingTarget);
+		if (npc->isActive())
+			npc->draw(renderingTarget);
 	}
 
 	for (auto npc : npc2s) {
-		npc->draw(renderingTarget);
+		if(npc->isActive()) 
+			npc->draw(renderingTarget);
 	}
 
 	// Draw labels
@@ -499,6 +496,49 @@ HRESULT BaseApp::onKeyDown(WPARAM wparam) {
 	return hr;
 }
 
+void BaseApp::loadConfig() {
+	// Need to load content from config before this methods.
+	// This section will be handled by your future Config object.
+	//
+
+	// Background - spriteSheetFile.at(0)
+	spriteSheetFiles.push_back("..//media//DubboITBackground.jpg");
+	// Background - sprites.at(0)
+	sprites.push_back({
+		D2D1::RectF(0.f, 0.f, 799.f, 599.f)
+	});
+
+	// NPC 1 - spriteSheetFile.at(1)
+	spriteSheetFiles.push_back("..//media//Regular_NPCs.png");
+	// NPC 1 - sprites.at(1)
+	sprites.push_back({
+		D2D1::RectF(0.f, 0.f, 35.f, 60.f)
+	});
+	// NPC 2 - sprites.at(2)
+	sprites.push_back({
+		D2D1::RectF(251.f, 8.f, 282.f, 56.f)
+	});
+
+	// Fonts 
+	fonts.push_back("Bookman Old Style");
+	// Font sizes
+	fontSizes.push_back(24.f);
+	fontSizes.push_back(12.f);
+	// Now that we are generating fonts and font sizes automatically,
+	// the access to textFormats vector will be calculated by
+	// (font * fontSize + fontSize)
+	// i.e. textFormat.at(font * fontSize + fontSize)
+	// Therefore, you should document the actual access index, here
+	//
+	// textFormat.at(0) : Bookman Old Style, 24.f
+	// textFormat.at(1) : Bookman Old Style, 12.f
+
+	brushColor.push_back(D2D1::ColorF(D2D1::ColorF::White));
+	brushColor.push_back(D2D1::ColorF(D2D1::ColorF::DarkBlue));
+	brushColor.push_back(D2D1::ColorF(D2D1::ColorF::Yellow));
+	brushColor.push_back(D2D1::ColorF(D2D1::ColorF::Red));
+}
+
 void BaseApp::initializeGameAssets() {
 	// This needs to be done after having devices created and config files loaded.
 
@@ -509,6 +549,7 @@ void BaseApp::initializeGameAssets() {
 
 	// Spawn NPC type 2
 	spawnNPC2();
+	
 	// YOU: change the label to indicate the exercise name
 	//
 	// Labels
@@ -553,22 +594,6 @@ void BaseApp::onLButtonUp()
 	// TN
 }
 
-// Helper functions
-//-----------------
-// Convert standard string to wstring
-// TN
-std::wstring BaseApp::toWSString(std::string s) {
-	std::wstring ws;
-
-	for (auto c : s) {
-		if (c == '/')
-			ws.push_back(c);
-		ws.push_back(c);
-	}
-	ws.push_back(0);
-
-	return ws;
-}
 
 void BaseApp::spawnNPC1() {
 	while (npcs.size() < 5) {

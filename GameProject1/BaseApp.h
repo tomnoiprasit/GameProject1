@@ -109,9 +109,6 @@ private:
 	// Resize the render target.
 	void onResize(UINT, UINT);
 
-	// Helper function for wchar_t
-	std::wstring toWSString(std::string);
-
 	std::vector<ID2D1Bitmap*> spriteSheets;
 	std::vector<std::vector<D2D1_RECT_F>> sprites;
 	std::vector<std::string> spriteSheetFiles;

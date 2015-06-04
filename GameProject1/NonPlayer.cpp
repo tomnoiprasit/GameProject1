@@ -253,3 +253,6 @@ void NonPlayer::bounceTopBottom() {
 	}
 }
 
+void NonPlayer::setActive(bool b) {
+	active = b;
+}

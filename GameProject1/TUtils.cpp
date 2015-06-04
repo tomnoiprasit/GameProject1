@@ -21,3 +21,16 @@ int TUtils::randIntBetween(int begin, int end) {
 	std::uniform_int_distribution<int> u(begin, end);
 	return u(e);
 }
+
+std::wstring TUtils::toWSString(std::string s) {
+	std::wstring ws;
+
+	for (auto c : s) {
+		if (c == '/')
+			ws.push_back(c);
+		ws.push_back(c);
+	}
+	ws.push_back(0);
+
+	return ws;
+}
