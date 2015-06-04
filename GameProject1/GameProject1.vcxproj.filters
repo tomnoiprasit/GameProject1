@@ -33,6 +33,18 @@
     <ClInclude Include="DPIScale.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NonPlayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPC1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NPC2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApp.cpp">
@@ -48,6 +60,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Velocity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NonPlayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

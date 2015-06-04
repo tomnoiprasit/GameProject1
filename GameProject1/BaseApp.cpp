@@ -46,6 +46,53 @@ void BaseApp::runMessageLoop()
 		if (gameTime.getElapsedTime() > SCREEN_UPDATE) {
 
 			// Update your timer related objects
+			for (auto npc : npcs) {
+				npc->update(gameTime);
+			}
+
+			for (auto npc : npc2s) {
+				npc->update(gameTime);
+			}
+
+			// collision detection
+			// NPC1 hits itself
+			for (int i = 0; i < npcs.size(); i++)
+			{
+				for (int j = i + 1; j < npcs.size(); j++)
+				{
+					if (TUtils::intersects(
+						npcs.at(i)->getDrawRectangle(), 
+						npcs.at(j)->getDrawRectangle()
+						)) {
+
+						npcs.at(i)->toggleStatus();
+						npcs.at(j)->toggleStatus();
+					}
+				}
+			}
+			// NPC2 hits each other
+			for (int i = 0; i < npc2s.size(); i++)
+			{
+				for (int j = i + 1; j < npc2s.size(); j++)
+				{
+					if (TUtils::intersects(
+						npc2s.at(i)->getDrawRectangle(),
+						npc2s.at(j)->getDrawRectangle()
+						)) {
+						// If i is on the left, move i to the left
+						// and j to the right
+						if (npc2s.at(i)->getDrawRectangle().left <
+							npc2s.at(j)->getDrawRectangle().left) {
+							npc2s.at(i)->setStatus(1);
+							npc2s.at(j)->setStatus(2);
+						}
+						else {
+							npc2s.at(i)->setStatus(2);
+							npc2s.at(j)->setStatus(1);
+						}
+					}
+				}
+			}
 
 			// Rest elapsed time to 0 and repaint screen
 			gameTime.resetElapsedTime();
@@ -87,11 +134,20 @@ void BaseApp::loadConfig() {
 
 	// Background - spriteSheetFile.at(0)
 	spriteSheetFiles.push_back("..//media//DubboITBackground.jpg");
-
-
 	// Background - sprites.at(0)
 	sprites.push_back({ 
 		D2D1::RectF(0.f, 0.f, 799.f, 599.f)
+	});
+
+	// NPC 1 - spriteSheetFile.at(1)
+	spriteSheetFiles.push_back("..//media//Regular_NPCs.png");
+	// NPC 1 - sprites.at(1)
+	sprites.push_back({
+		D2D1::RectF(0.f, 0.f, 35.f, 60.f)
+	});
+	// NPC 2 - sprites.at(2)
+	sprites.push_back({
+		D2D1::RectF(251.f, 8.f, 282.f, 56.f)
 	});
 
 	// Fonts 
@@ -254,15 +310,8 @@ HRESULT BaseApp::initialize()
 			WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT,
 			CW_USEDEFAULT,
-			//APP_WINDOW_WIDTH + 2 * GetSystemMetrics(SM_CXBORDER) + 2 * GetSystemMetrics(SM_CXFIXEDFRAME) + static_cast<int>(GetSystemMetrics(SM_CXPADDEDBORDER)* dpiX / 96.f),
-			//APP_WINDOW_HEIGHT + GetSystemMetrics(SM_CYCAPTION) + 2 * GetSystemMetrics(SM_CYBORDER) + 2 * static_cast<int>(GetSystemMetrics(SM_CYFIXEDFRAME) * dpiY / 96.f),
-			//APP_WINDOW_WIDTH + 2 * GetSystemMetrics(SM_CXBORDER) + 2 * GetSystemMetrics(SM_CXFIXEDFRAME) + 2 * static_cast<int>(GetSystemMetrics(SM_CXPADDEDBORDER)* dpiX),
-			//APP_WINDOW_HEIGHT + 2 * static_cast<int>(GetSystemMetrics(SM_CYFIXEDFRAME) * dpiY),
-			//static_cast<INT>(dpiX * APP_WINDOW_WIDTH / 96.f),
-			//static_cast<INT>(dpiY * APP_WINDOW_HEIGHT / 96.f),
-			static_cast<INT>(APP_WINDOW_WIDTH * DPIScale::getScaleX()),
-			static_cast<INT>(APP_WINDOW_HEIGHT * DPIScale::getScaleY()),
-
+			static_cast<INT>(APP_WINDOW_WIDTH * DPIScale::getScaleX()), // For modern screen
+			static_cast<INT>(APP_WINDOW_HEIGHT * DPIScale::getScaleY()), // For modern screen
 			NULL,
 			NULL,
 			HINST_THISCOMPONENT,
@@ -401,10 +450,18 @@ HRESULT BaseApp::onRender()
 	renderingTarget->BeginDraw();
 
 	renderingTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-	renderingTarget->Clear(D2D1::ColorF(D2D1::ColorF::Black));
+	renderingTarget->Clear(D2D1::ColorF(D2D1::ColorF::CornflowerBlue));
 
 	// Draw background
-	background.draw(renderingTarget);
+	//background.draw(renderingTarget);
+
+	for (auto npc : npcs) {
+		npc->draw(renderingTarget);
+	}
+
+	for (auto npc : npc2s) {
+		npc->draw(renderingTarget);
+	}
 
 	// Draw labels
 	for (auto label : labels) {
@@ -448,6 +505,10 @@ void BaseApp::initializeGameAssets() {
 	// Set the background image
 	background.setUp(spriteSheets.at(0), sprites.at(0));
 
+	spawnNPC1();
+
+	// Spawn NPC type 2
+	spawnNPC2();
 	// YOU: change the label to indicate the exercise name
 	//
 	// Labels
@@ -509,3 +570,41 @@ std::wstring BaseApp::toWSString(std::string s) {
 	return ws;
 }
 
+void BaseApp::spawnNPC1() {
+	while (npcs.size() < 5) {
+		npcs.push_back(new NPC1());
+		npcs.at(npcs.size() - 1)->setUp(spriteSheets.at(spriteSheets.size() - 1), sprites.at(1));
+		npcs.at(npcs.size() - 1)->setLocation(getRandomPoint2D().x,getRandomPoint2D().y);
+		npcs.at(npcs.size() - 1)->setPivotalPoint(getRandomPoint2D());
+		npcs.at(npcs.size() - 1)->setRandomAngle();
+		npcs.at(npcs.size() - 1)->setFrametoUpdateAngle(getRandomFrameToAngle());
+		npcs.at(npcs.size() - 1)->setRadius(getRandomRadius());
+	}
+}
+
+void BaseApp::spawnNPC2() {
+	while (npc2s.size() < 5) {
+		npc2s.push_back(new NPC2());
+		npc2s.at(npc2s.size() - 1)->setUp(spriteSheets.at(spriteSheets.size() - 1), sprites.at(2));
+		npc2s.at(npc2s.size() - 1)->setLocation(getRandomPoint2D().x, getRandomPoint2D().y);
+	}
+}
+
+D2D1_POINT_2F BaseApp::getRandomPoint2D() {
+	std::default_random_engine e(std::random_device{}());
+	std::uniform_int_distribution<int> u(100, 600);
+	std::uniform_int_distribution<int> t(100, 600);
+	return D2D1::Point2F(u(e), t(e));
+}
+
+int BaseApp::getRandomFrameToAngle() {
+	std::default_random_engine e(std::random_device{}());
+	std::uniform_int_distribution<int> u(3, 7);
+	return u(e);
+}
+
+float BaseApp::getRandomRadius() {
+	std::default_random_engine e(std::random_device{}());
+	std::uniform_int_distribution<int> u(50, 150);
+	return u(e);
+}

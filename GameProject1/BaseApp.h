@@ -2,6 +2,8 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <vector>
+#include <random>
+
 // D2D
 #include <d2d1.h>
 #include <d2d1helper.h>
@@ -13,6 +15,9 @@
 #include "GameTime.h"
 #include "Background.h"
 #include "LabelDisplayBox.h"
+#include "NPC1.h"
+#include "NPC2.h"
+#include "TUtils.h"
 
 // Libraries
 #pragma comment(lib, "d2d1")
@@ -122,4 +127,17 @@ private:
 
 	Background background;
 	std::vector<LabelDisplayBox> labels;
+
+	// vector of NPC1
+	std::vector<NPC1 *> npcs;
+	
+	// vector of NPC2
+	std::vector<NPC2 *> npc2s;
+
+	void spawnNPC1();
+	void spawnNPC2();
+
+	D2D1_POINT_2F getRandomPoint2D();
+	int getRandomFrameToAngle();
+	float getRandomRadius();
 };

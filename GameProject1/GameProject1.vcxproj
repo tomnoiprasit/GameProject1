@@ -69,6 +69,10 @@
     <ClInclude Include="DPIScale.h" />
     <ClInclude Include="GameTime.h" />
     <ClInclude Include="LabelDisplayBox.h" />
+    <ClInclude Include="NonPlayer.h" />
+    <ClInclude Include="NPC1.h" />
+    <ClInclude Include="NPC2.h" />
+    <ClInclude Include="TUtils.h" />
     <ClInclude Include="Velocity.h" />
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +80,10 @@
     <ClCompile Include="BaseApp.cpp" />
     <ClCompile Include="GameTime.cpp" />
     <ClCompile Include="LabelDisplayBox.cpp" />
+    <ClCompile Include="NonPlayer.cpp" />
+    <ClCompile Include="NPC1.cpp" />
+    <ClCompile Include="NPC2.cpp" />
+    <ClCompile Include="TUtils.cpp" />
     <ClCompile Include="Velocity.cpp" />
   </ItemGroup>
   <ItemGroup>
