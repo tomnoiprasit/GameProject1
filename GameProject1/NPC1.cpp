@@ -75,10 +75,10 @@ void NPC1::update(GameTime gameTime) {
 void NPC1::moveInCircle(GameTime gameTime) {
 	float xIntPart;
 	float yIntPart;
-	xLocation = pivotalPoint.x + radius * sin(angle * 3.1416 /180);
-	yLocation = pivotalPoint.y + radius * cos(angle * 3.1416 / 180);
-	modf(static_cast<float>(xLocation), &xIntPart);
-	modf(static_cast<float>(yLocation), &yIntPart);
+	xLocation = pivotalPoint.x + radius * static_cast<float>(sin(angle * 3.141592653589793238462643383279502884 / 180));
+	yLocation = pivotalPoint.y + radius * static_cast<float>(cos(angle * 3.141592653589793238462643383279502884 / 180));
+	modf(xLocation, &xIntPart);
+	modf(yLocation, &yIntPart);
 	setLocation(xIntPart, yIntPart);
 }
 
@@ -110,5 +110,5 @@ void NPC1::toggleStatus() {
 void NPC1::setRandomAngle() {
 	std::default_random_engine e(std::random_device{}());
 	std::uniform_int_distribution<int> u(0, 359);
-	angle = u(e);
+	angle = static_cast<float>(u(e));
 }

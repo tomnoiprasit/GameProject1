@@ -1,6 +1,9 @@
 #pragma once
 #include <random>
+#include <math.h>
 #include "NonPlayer.h"
+#define _USE_MATH_DEFINES
+
 class NPC1 : public NonPlayer
 {
 	// NPC1 specific

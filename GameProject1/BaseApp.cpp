@@ -56,9 +56,9 @@ void BaseApp::runMessageLoop()
 
 			// collision detection
 			// NPC1 hits itself
-			for (int i = 0; i < npcs.size(); i++)
+			for (size_t i = 0; i < npcs.size(); i++)
 			{
-				for (int j = i + 1; j < npcs.size(); j++)
+				for (size_t j = i + 1; j < npcs.size(); j++)
 				{
 					if (TUtils::intersects(
 						npcs.at(i)->getDrawRectangle(), 
@@ -71,9 +71,9 @@ void BaseApp::runMessageLoop()
 				}
 			}
 			// NPC2 hits each other
-			for (int i = 0; i < npc2s.size(); i++)
+			for (size_t i = 0; i < npc2s.size(); i++)
 			{
-				for (int j = i + 1; j < npc2s.size(); j++)
+				for (size_t j = i + 1; j < npc2s.size(); j++)
 				{
 					if (TUtils::intersects(
 						npc2s.at(i)->getDrawRectangle(),
@@ -594,17 +594,13 @@ D2D1_POINT_2F BaseApp::getRandomPoint2D() {
 	std::default_random_engine e(std::random_device{}());
 	std::uniform_int_distribution<int> u(100, 600);
 	std::uniform_int_distribution<int> t(100, 600);
-	return D2D1::Point2F(u(e), t(e));
+	return D2D1::Point2F(static_cast<float>(u(e)), static_cast<float>(t(e)));
 }
 
 int BaseApp::getRandomFrameToAngle() {
-	std::default_random_engine e(std::random_device{}());
-	std::uniform_int_distribution<int> u(3, 7);
-	return u(e);
+	return TUtils::randIntBetween(3, 7);
 }
 
 float BaseApp::getRandomRadius() {
-	std::default_random_engine e(std::random_device{}());
-	std::uniform_int_distribution<int> u(50, 150);
-	return u(e);
+	return static_cast<float>(TUtils::randIntBetween(50,150));
 }

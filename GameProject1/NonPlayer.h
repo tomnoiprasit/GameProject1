@@ -3,6 +3,7 @@
 #define _NON_PLAYER_H
 #include <d2d1.h>
 #include <vector>
+#include <math.h>
 #include "GameTime.h"
 #include "Velocity.h"
 
