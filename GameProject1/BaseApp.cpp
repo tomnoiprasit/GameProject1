@@ -501,6 +501,8 @@ void BaseApp::onResize(UINT width, UINT height)
 }
 
 HRESULT BaseApp::onKeyDown(WPARAM wparam) {
+	// Check the KeyCode
+	// https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731%28v=vs.85%29.aspx
 	HRESULT hr = S_OK;
 	switch (wparam) {
 	case VK_LEFT:
