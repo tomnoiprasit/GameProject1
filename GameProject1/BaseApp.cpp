@@ -9,6 +9,8 @@ BaseApp::BaseApp() : d2dFactory(NULL), renderingTarget(NULL), wicImaingFactory(N
 
 BaseApp::~BaseApp()
 {
+	cleanUp();
+
 	for (auto spriteSheet : spriteSheets)
 		SafeRelease(&spriteSheet);
 
@@ -330,111 +332,128 @@ void BaseApp::runMessageLoop()
 			DispatchMessage(&msg);
 		}
 
-		// Background sound
-		// 
-		//if (gameSound.BackgroundChanged())
-		//	gameSound.playLoop(0, 0.5f);
+		update();
 
-		// Handle your timer related here
-		gameTime.update();
-		if (gameTime.getElapsedTime() > SCREEN_UPDATE) {
-
-			// Update your timer related objects
-			for (auto npc : npcs) {
-				npc->update(gameTime);
-			}
-
-			for (auto npc : npc2s) {
-				npc->update(gameTime);
-			}
-
-			// collision detection
-			// NPC1 hits other NPC1
-			for (size_t i = 0; i < npcs.size(); i++)
-			{
-				for (size_t j = i + 1; j < npcs.size(); j++)
-				{
-					if (TUtils::intersects(
-						npcs.at(i)->getDrawRectangle(),
-						npcs.at(j)->getDrawRectangle()
-						)) {
-
-						npcs.at(i)->toggleStatus();
-						npcs.at(j)->toggleStatus();
-					}
-				}
-			}
-			// NPC2 hits other NPC2
-			for (size_t i = 0; i < npc2s.size(); i++)
-			{
-				for (size_t j = i + 1; j < npc2s.size(); j++)
-				{
-					if (TUtils::intersects(
-						npc2s.at(i)->getDrawRectangle(),
-						npc2s.at(j)->getDrawRectangle()
-						)) {
-						// If i is on the left, move i to the left
-						// and j to the right
-						if (npc2s.at(i)->getDrawRectangle().left <
-							npc2s.at(j)->getDrawRectangle().left) {
-							npc2s.at(i)->setStatus(1);
-							npc2s.at(j)->setStatus(2);
-						}
-						else {
-							npc2s.at(i)->setStatus(2);
-							npc2s.at(j)->setStatus(1);
-						}
-					}
-				}
-			}
-
-			// Collision between NPC1 and NPC2
-			for (size_t i = 0; i < npcs.size(); i++) {
-				for (size_t j = 0; j < npc2s.size(); j++) {
-					if (npcs.at(i)->isActive() &&
-						npc2s.at(j)->isActive() &&
-						TUtils::intersects(npcs.at(i)->getDrawRectangle(), npc2s.at(j)->getDrawRectangle())) {
-
-						// Mark both of them inactive
-						npcs.at(i)->setActive(false);
-						npc2s.at(j)->setActive(false);
-					}
-				}
-			}
-
-			// Remove inactive objects
-			// Be careful here!!!
-			// You must dereference the object first,
-			// then remove the pointer from the vector.
-			// If not..... memory leaks......
-			// Don't blame me.
-			for (auto it = npcs.begin(); it != npcs.end();) {
-				if (!(*it)->isActive()) {
-					delete * it;
-					it = npcs.erase(it);
-				}
-				else {
-					++it;
-				}
-			}
-			for (auto it = npc2s.begin(); it != npc2s.end();) {
-				if (!(*it)->isActive()) {
-					delete * it;
-					it = npc2s.erase(it);
-				}
-				else {
-					++it;
-				}
-			}
-
-			// Rest elapsed time to 0 and repaint screen
-			gameTime.resetElapsedTime();
-			InvalidateRect(mainWindowHandle, NULL, TRUE);
-		}
-		else {
-			//
-		}
 		if (msg.message == WM_QUIT) break;
+	}
+}
+
+// main update
+void BaseApp::update() {
+	// Background sound
+	// 
+	//if (gameSound.BackgroundChanged())
+	//	gameSound.playLoop(0, 0.5f);
+
+	// Handle your timer related here
+	gameTime.update();
+	if (gameTime.getElapsedTime() > SCREEN_UPDATE) {
+
+		// Update your timer related objects
+		for (auto npc : npcs) {
+			if (npc->isActive())
+				npc->update(gameTime);
+		}
+
+		for (auto npc : npc2s) {
+			if (npc->isActive())
+				npc->update(gameTime);
+		}
+
+		// collision detection
+		// NPC1 hits other NPC1
+		for (size_t i = 0; i < npcs.size(); i++)
+		{
+			for (size_t j = i + 1; j < npcs.size(); j++)
+			{
+				if (npcs.at(i)->isActive() &&
+					npcs.at(j)->isActive() &&
+					TUtils::intersects(npcs.at(i)->getDrawRectangle(), npcs.at(j)->getDrawRectangle())) {
+
+					npcs.at(i)->toggleStatus();
+					npcs.at(j)->toggleStatus();
+				}
+			}
+		}
+		// NPC2 hits other NPC2
+		for (size_t i = 0; i < npc2s.size(); i++)
+		{
+			for (size_t j = i + 1; j < npc2s.size(); j++)
+			{
+				if (npc2s.at(i)->isActive() &&
+					npc2s.at(j)->isActive() &&
+					TUtils::intersects(npc2s.at(i)->getDrawRectangle(), npc2s.at(j)->getDrawRectangle())) {
+					// If i is on the left, move i to the left
+					// and j to the right
+					if (npc2s.at(i)->getDrawRectangle().left <
+						npc2s.at(j)->getDrawRectangle().left) {
+						npc2s.at(i)->setStatus(1);
+						npc2s.at(j)->setStatus(2);
+					}
+					else {
+						npc2s.at(i)->setStatus(2);
+						npc2s.at(j)->setStatus(1);
+					}
+				}
+			}
+		}
+
+		// Collision between NPC1 and NPC2
+		for (size_t i = 0; i < npcs.size(); i++) {
+			for (size_t j = 0; j < npc2s.size(); j++) {
+				if (npcs.at(i)->isActive() &&
+					npc2s.at(j)->isActive() &&
+					TUtils::intersects(npcs.at(i)->getDrawRectangle(), npc2s.at(j)->getDrawRectangle())) {
+
+					// Mark both of them inactive
+					npcs.at(i)->setActive(false);
+					npc2s.at(j)->setActive(false);
+				}
+			}
+		}
+
+		// Remove inactive objects
+		// Be careful here!!!
+		// You must dereference the object first,
+		// then remove the pointer from the vector.
+		// If not..... memory leaks......
+		// Don't blame me.
+		for (auto it = npcs.begin(); it != npcs.end();) {
+			if (!(*it)->isActive()) {
+				delete * it;
+				it = npcs.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+		for (auto it = npc2s.begin(); it != npc2s.end();) {
+			if (!(*it)->isActive()) {
+				delete * it;
+				it = npc2s.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+
+		// Rest elapsed time to 0 and repaint screen
+		gameTime.resetElapsedTime();
+		InvalidateRect(mainWindowHandle, NULL, TRUE);
+	}
+
+}
+
+// cleaning up
+void BaseApp::cleanUp() {
+	// Remove all the pointer vectors to objects
+	for (auto it = npcs.begin(); it != npcs.end(); ) {
+			delete * it;
+			it = npcs.erase(it);
+	}
+	for (auto it = npc2s.begin(); it != npc2s.end();) {
+		delete * it;
+		it = npc2s.erase(it);
 	}
 }
 

@@ -80,9 +80,11 @@ private:
 
 	// Initialize device-independent resources.
 	HRESULT createDeviceIndependentResources();
-
 	// Initialize device-dependent resources.
 	HRESULT createDeviceResources(HWND);
+	// Resize the render target.
+	void onResize(UINT, UINT);
+
 
 	// Release device-dependent resource.
 	//void DiscardDeviceResources();
@@ -90,24 +92,6 @@ private:
 	// The windows procedure.
 	static LRESULT CALLBACK wndProc(HWND, UINT, WPARAM, LPARAM);
 
-	void initializeGameAssets();
-
-	// Load configuration file
-	void loadConfig();
-
-	// Draw content.
-	HRESULT onRender();
-
-	// Handle keyboard.
-	HRESULT onKeyDown(WPARAM);
-
-	// Handle mouse
-	void onLButtonDown(int, int, DWORD);
-	void onMouseMove(int, int, DWORD);
-	void onLButtonUp();
-
-	// Resize the render target.
-	void onResize(UINT, UINT);
 
 	std::vector<ID2D1Bitmap*> spriteSheets;
 	std::vector<std::vector<D2D1_RECT_F>> sprites;
@@ -121,6 +105,30 @@ private:
 	std::vector<float> fontSizes;
 
 	GameTime gameTime;
+
+	// The following methods are likely needed
+	// to be modified to your own apps
+
+	void initializeGameAssets();
+	// Load configuration file
+	void loadConfig();
+	// Draw content.
+	HRESULT onRender();
+
+	// main update
+	void update();
+	
+	// cleaning up
+	void cleanUp();
+
+	// Handle keyboard.
+	HRESULT onKeyDown(WPARAM);
+	// Handle mouse
+	void onLButtonDown(int, int, DWORD);
+	void onMouseMove(int, int, DWORD);
+	void onLButtonUp();
+
+	// Your game specific methods after this.
 
 	Background background;
 	std::vector<LabelDisplayBox> labels;
