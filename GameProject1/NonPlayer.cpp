@@ -256,3 +256,8 @@ void NonPlayer::bounceTopBottom() {
 void NonPlayer::setActive(bool b) {
 	active = b;
 }
+
+void NonPlayer::setVelocity(float x, float y) {
+	velocity.setX(x);
+	velocity.setY(y);
+}

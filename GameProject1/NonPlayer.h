@@ -74,6 +74,7 @@ public:
 	bool isActive();
 	// For subclass to consider setting them
 	void setWindowSize(int, int, int, int);
+	void setVelocity(float, float);
 
 };
 
