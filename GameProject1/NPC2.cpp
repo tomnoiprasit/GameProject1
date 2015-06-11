@@ -117,15 +117,11 @@ void NPC2::setStatus(int i) {
 void NPC2::bounceLeftRight() {
 	float width = sourceRectangle.at(currentFrame).right - sourceRectangle.at(currentFrame).left + 1;
 	if (drawRectangle.right > windowSize.right) {
-		drawRectangle.left = windowSize.right - width;
-		drawRectangle.right = drawRectangle.left + width;
-		xLocation = drawRectangle.left + width / 2;
+		setLocation(windowSize.right - width / 2.f, (drawRectangle.bottom + drawRectangle.top) / 2.f);
 		setStatus(0);
 	}
 	else if (drawRectangle.left < 0) {
-		drawRectangle.left = 0;
-		drawRectangle.right = drawRectangle.left + width;
-		xLocation = drawRectangle.left + width / 2;
+		setLocation(width / 2.f, (drawRectangle.bottom + drawRectangle.top) / 2.f);
 		setStatus(0);
 	}
 }
